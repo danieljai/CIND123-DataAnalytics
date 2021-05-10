@@ -1,0 +1,175 @@
+---
+title: 'CIND 123 Summer 2019 - Assignment #3'
+author: "Andy Lee 500163559"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+Use RStudio for this assignment. 
+Edit the file `A3-S19-Q` and insert your R code where wherever you see the string "INSERT YOUR ANSWER HERE"
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. 
+
+
+## Sample Question and Solution
+
+Use `seq()` to create the vector $(2,4,6,\ldots,20)$.
+
+```{r}
+#Insert your code here.
+seq(2,20,by = 2)
+```
+
+
+##Question 1
+
+Install the `marketing` dataset on your computer using the command `install.packages("datarium")`. Then load the `datarium` package into your session using the following command. Understand the dataset by using `??marketing` command. 
+```{r}
+library(datarium)
+attach(marketing)
+```
+
+
+a) Plot the advertising budget of `Youtube` against `Sales`. Comment on their relationship. 
+Hint: You may use the `ggplot()` function from `ggplot2` package. 
+
+```{r}
+mkt <- marketing
+plot(x=mkt$youtube, y=mkt$sales, xlab = "Youtube", ylab = "Sales")
+# there appears to a somewhat-strong positive correlation between Youtube and Sales. correlation seems to be tighter for low values of Youtube while the variance appears larger for higher values of Youtube
+```
+
+
+b)  Find the correlation between advertising budget of `Youtube` against `Sales`. Comment on the output. Does it match your intuition from part (a). 
+```{r}
+cor(mkt$youtube,mkt$sales)
+# correlation is 0.7822244, somewhat strong since its closer to 1.
+```
+
+c) Plot the `Sales` as a function of `Youtube` variable using a scatterplot, and graph the least-square line on the same plot. 
+
+```{r}
+model_yt <- lm(sales~youtube, data = mkt)
+summary(model_yt)
+plot(x=mkt$youtube, y=mkt$sales, xlab = "Youtube", ylab = "Sales")
+abline(model_yt)
+```
+
+d) Use the regression line to predict the `Sales` amount when `Youtube` budget is `$69K`.
+```{r}
+new.amount <- data.frame(youtube = c(69))
+predict(model_yt, newdata =  new.amount)
+```
+
+
+e) Use `youtube` and `facebook` variables to build a linear regression model to predict `sales` Display a summary of your model indicating Residuals, Coefficients, ..., etc. What conclusion can you draw from this summary?
+```{r}
+model_ytfb <- lm(sales~youtube+facebook, data = mkt)
+summary(model_ytfb)
+```
+
+
+f) Use the regression line to predict the `Sales` amount when `youtube` budget is `$69K` and `facebook` is `$39.36K`.
+```{r}
+new.amount2 <- data.frame(youtube = c(69), facebook = c(39.36))
+predict(model_ytfb,newdata = new.amount2)
+```
+
+g) What is the difference between the output in (f) and the output in (d)
+```{r}
+# (f) values is higher than (d), (f) values include more information as it takes into account youtube and facebook's effect on sales
+```
+
+
+h) Display the correlation matrix of the variables: `youtube`, `facebook`, `newspaper` and `sales`.
+What conclusion can you draw?
+```{r}
+cor(mkt)
+```
+
+
+i) In your opinion, which statistical test should be used to discuss the relationship between `youtube` and `sales`?
+Hint:  Review the differnce between Pearson and Spearman tests.
+```{r}
+cor(mkt$youtube,mkt$sales,method = 'pearson')
+cor(mkt$youtube,mkt$sales,method = 'spearman')
+# pearson would be more accurate as its better at evaluating continuous values, which sales, youtube, facebook, newspaper all are. Compare to spearman which is suitable for rank-ordered ordinal.
+```
+
+
+## Question 2
+
+This question makes use of package "ISwR". Please load `airquality` dataset as following:
+```{r}
+#install.packages("ISwR")
+library(ISwR)
+data(airquality)
+str(airquality)
+```
+
+
+a) Use a histogram to assess the normality of the `Ozone` variable, then explain why it does not appear normally distributed.
+```{r}
+df.aq <- airquality
+hist(df.aq$Ozone)
+# because ozone measurements are dependent on other factors and not an independent variable. the ozone variable would not be symmetric in nature around its mean, a property of the normal distribution. while there may be instances of high ozone, there are no negative values of ozone.   
+```
+
+b) Create a boxplot that shows the distribution of `Ozone` in each month. 
+Use different colors for each month.
+
+```{r}
+boxplot(Ozone~Month,data = df.aq, col=rainbow(length(unique(df.aq$Month))))
+```
+
+
+## Question 3 
+
+$\pi$ appears in the formula for the standard normal distribution, the most important probability distribution in statistics. Why not give it a try to calculate $\pi$ using statistics! In fact, you'll use a simulation technique called the *Monte Carlo Method*.
+
+Recall that the area of a circle of radius $r$ is $A = \pi r^2$. Therefore the area of a circle of radius 1, aka a *unit circle*, is $\pi$. You'll compute an approximation to the area of this circle using the Monte Carlo Method.
+
+a) The Monte Carlo Method uses random numbers to simulate some process. Here the process is throwing darts at a square. Assume the darts are uniformly distributed over the square. Imagine a unit circle enclosed by a square whose sides are of length 2. Set an R variable `area.square` to be the area of a square whose sides are of length 2.
+```{r}
+square.length = 2
+area.square = square.length^2
+```
+
+b) The points of the square can be given x-y coordinates. Let both x and y range from -1 to +1 so that the square is centred on the origin of the coordinate system. Throw some darts at the square by generating random numeric vectors x and y, each of length `N = 10,000`. Set R variables `x` and `y` each to be uniformly distributed random numbers in the range -1 to +1.
+(hint: runif() generates random number for the uniform distribution)
+```{r}
+N = 10000
+df.cord <- data.frame(x = runif(N, -1, 1), y = runif(N, -1, 1))
+```
+
+c) Now count how many darts landed inside the unit circle. Recall that a point is inside the unit circle when $x^2 + y^2 < 1$. Save the result of successful hits in a variable named hit. 
+(hint: a for loop over the length of x and y is one option to reach hit)
+```{r}
+hit <- sum((df.cord$x^2 + df.cord$y^2) <= 1)
+```
+
+d) The probability that a dart hits inside the circle is proportional to the ratio of the area of the circle to the area of the square. Use this fact to calculate an approximation to $\pi$ and print the result
+```{r}
+(hit/N) * area.square
+```
+You got the first estimate for `pi` $\pi$, congratulations you have completed the first run of the Monte Carlo simulation.
+If there is further interest put all the above logic in a function, and call it 50 times store the results in a vector called pi then take the mean of pi vector. 
+```{r}
+mcsim <- function() {
+  square.length = 2
+  area.square = square.length^2
+  N = 1000000
+  df.cord <- data.frame(x = runif(N, -1, 1), y = runif(N, -1, 1))
+  hit <- sum((df.cord$x^2 + df.cord$y^2) <= 1)
+  (hit/N) * area.square
+}
+
+
+pi <- replicate(50, mcsim())
+mean(pi)
+```
+
+

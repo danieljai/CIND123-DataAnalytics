@@ -1,0 +1,178 @@
+---
+title: 'CIND123 Summer 2019 - Assignment #2'
+author: "Write your name here"
+date: ' '
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+Use R Studio for this assignment. 
+Edit the file `A2-S19-Q` and insert your R code where wherever you see the string "INSERT YOUR ANSWER HERE"
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. 
+
+When your are done with your answers and before submitting, save the file with the following naming convention :your **Lastname_firstname**
+
+Submit **both** the rmd and the pdf output(or word or html) files, failing to submit **both** will be subject to mark deduction.
+
+
+## Sample Question and Solution
+
+Use `seq()` to create the vector $(1,2,3,\ldots,20)$.
+
+```{r}
+seq(1,20)
+```
+
+******
+\newpage
+## Question 1 
+
+
+The following dataset represents the Population by Highest Educational Attainment (Neighbourhood/Ward), provided by the City of Edmonton under the folloing license
+https://data.edmonton.ca/stories/s/City-of-Edmonton-Open-Data-Terms-of-Use/msh8-if28/
+
+Download and store the datset using the folloing command
+```{r}
+censusData <- read.csv(file = 'https://data.edmonton.ca/resource/f7ms-98xd.csv', header = T)
+str(censusData)
+```
+
+
+a) Remove the all the outliers from the `bachelor_s_degree` variable, then store it as `bachelor_s_degree_without_outliers`.
+
+```{r}
+# Using boxplot to assist in finding outliers.
+tmp <- boxplot(censusData$bachelor_s_degree)$out
+outliers <- which (censusData$bachelor_s_degree %in% tmp)
+censusData$bachelor_s_degree_without_outliers <- censusData$bachelor_s_degree
+censusData$bachelor_s_degree_without_outliers[outliers] <- NA
+```
+
+b) Plot two histograms that show the distribution of the `bachelor_s_degree` and `bachelor_s_degree_without_outliers` variables. 
+
+```{r}
+par(mfrow=c(1,2))
+hist(censusData$bachelor_s_degree, col = 'red', main = 'Bach w/ deg', breaks = seq(0,2200,by = 200))
+hist(censusData$bachelor_s_degree_without_outliers, col = 'blue', main = 'Bach w/ deg (no outliers)', breaks = seq(0,2200,by = 200))
+```
+
+
+c) Use the aggregate function to determine the sum of `medical_degree` holders grouped by `ward`.
+```{r}
+aggregate(censusData$medical_degree, FUN = "sum", by = list(Ward=censusData$ward))
+```
+
+
+d) Draw a scatterplot for the `bachelor_s_degree` and `master_s_degree` holders in `WARD 1`. Describe this relationship in terms of strength and direction.
+```{r}
+df1 <- censusData$bachelor_s_degree[censusData$ward == 'WARD 1']
+df2 <- censusData$master_s_degree[censusData$ward == 'WARD 1']
+new.df<-cbind(df1,df2)
+plot(x = df1, y=df2, xlab = "Bachelor degree", ylab = "Masters degree")
+# the correlation between bachelor's degree and master's degree appears to be a strong and positive.  cor(df1,df2) returns a value of 0.95675 indicating this.
+cor(df1,df2)
+```
+
+
+******
+\newpage
+## Question 2
+
+In an experiment of rolling 10 dice simultaneously. Use the binomial distribution to calculate the followings:
+a) The probability of getting six 6's
+```{r}
+dbinom(6,10,1/6)
+```
+
+b) The probability of getting six, seven, or eight 4's
+```{r}
+dbinom(6,10,1/6) + dbinom(7,10,1/6) + dbinom(8,10,1/6)
+```
+
+c) The probability of getting six odd numbers
+```{r}
+dbinom(6,10,1/2)
+```
+
+
+******
+\newpage
+## Question 3 
+
+In a shipment of 20 engines, history shows that the probability of any one engine proving unsatisfactory is 0.1
+
+a) Use the Binomial approximation to calculate the probability that at least three engines are defective? 
+```{r}
+1-pbinom(2,20,0.1)
+```
+
+
+b) Use the Poisson approximation to calculate the probability that at least three engines are defective? 
+```{r}
+1-ppois(2,20*.1)
+```
+
+
+c) Compare the results of parts a and b, then illustrate on how well the Poisson probability distribution approximates the Binomial probability distribution.
+```{r}
+# Absolute Error of pbinom (Actual) vs ppois (Approximation). In summary, the approximation is accurate up to three decimal places.
+abs((1-pbinom(2,20,0.1)) - (1-ppois(2,20*.1)))
+# Relative Error
+abs((1-pbinom(2,20,0.1)) - (1-ppois(2,20*.1))) / (1-pbinom(2,20,0.1))
+```
+
+
+******
+\newpage
+## Question 4 
+
+In a shipment of 300 processors, there are 12 defective processors. A quality control consultant randomly collects 6 processors for inspection to determine whether they are defective.  Use the Hypergeometric approximation to calculate the following:
+
+a) The probability that there are exactly 2 defectives in the sample
+```{r}
+dhyper(x = 2, m = 12, n = 288, k = 6)
+```
+
+b) The probability that there are at most 5 defectives in the sample, P(X<=5).
+```{r}
+phyper(5, 12, 288, 6)
+```
+
+******
+
+\newpage
+## Question 5
+
+a) Suppose widgit weights produced at Acme Widgit Works have weights that are normally distributed with mean 17.46 grams and variance 375.67 grams. What is the probability that a randomly chosen widgit weighs more than 19 grams?
+
+```{r}
+1- pnorm(19, 17.46, sqrt(375.67) )
+```
+
+
+b) Suppose IQ scores are normally distributed with mean 100 and standard deviation 15. What is the 95th percentile of the distribution of IQ scores?
+```{r}
+qnorm(0.95, 100, 15)
+```
+
+c) Suppose widgits produced at Acme Widgit Works have probability 0.005 of being defective. Suppose widgits are shipped in cartons containing 25 widgits. What is the probability that a randomly chosen carton contains exactly one defective widgit?
+
+```{r}
+dbinom(1, 25, 0.005)
+```
+
+d) Suppose widgits produced at Acme Widgit Works have probability 0.005 of being defective. Suppose widgits are shipped in cartons containing 25 widgits. What is the probability that a randomly chosen carton contains no more than one defective widgit?
+
+```{r}
+pbinom(1, 25, 0.005)
+```
+
+******
+
+END of Assignment #2.

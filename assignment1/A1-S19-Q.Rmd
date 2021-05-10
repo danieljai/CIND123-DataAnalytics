@@ -1,0 +1,187 @@
+---
+title: 'CIND 123 Summer 2019 - Assignment #1'
+author: "Andy Lee - 500163559"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+Use RStudio for this assignment. 
+Edit the file `A1-S19-Q.Rmd` and insert your R code where wherever you see the string "#INSERT YOUR ANSWER HERE"
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. 
+
+## Sample Question and Solution
+
+Use `seq()` to create the vector $(1,2,3,\ldots,10)$.
+
+```{r}
+seq(1,10)
+```
+
+## Question 1
+
+a) Use the `seq()` function to create the vector $(1, 7, 13, \ldots, 61)$. Note that each term in this sequence is of the form 
+$1 + 6n$ where $n = 0, \ldots, 10$.
+
+```{r}
+seq(1,61,by=6)
+```
+
+b) Use `seq()` and `c()` to create the vector $(1, 2, 3, \ldots, 10, 9, 8, \ldots, 3, 2, 1)$.
+
+```{r}
+c(seq(1,10),seq(9,1))
+```
+
+c) Use 'seq()' function to create a vector with starting value 1.725 and end value 5.725. Each value in the sequence should be increased by 0.5. 
+
+```{r}
+seq(1.725,5.725,by=0.5)
+```
+
+d) Execute the following commands: seq_len(17), seq_along(1:17), seq(1,17). Write your observations. 
+```{r}
+seq_len(17)
+seq_along(1:17)
+seq(1,17)
+# In these particular commands they all produce the same outcome.
+# seq_len(length.out) takes a desired length of sequence
+# seq_along(along.with) takes the length from the length, which is given 1 to 17.
+# seq(from,to) produces sequence ranges from to to.
+```
+
+## Question 2
+
+a) Compute: $$\sum_{n=1}^{100} n$$
+
+```{r}
+sum(1:100)
+```
+
+b) Compute: $$\sum_{n=10}^{100} (n-3)^5$$
+
+```{r}
+n <- 10:100
+sum((n-3)^5)
+```
+
+c) Create a sequence of odd numbers between 1 to 100 in a vector. Find the sum of those odd numbers. 
+
+```{r}
+sum(seq(1,100,by=2))
+```
+
+d)  What are the outputs for the following cases: (i) sum(1:5, NA), and (ii) sum(1:5, NA, na.rm = TRUE). Give your intuition or reasonging behind each. 
+
+```{r}
+# sum(1:5, NA) = NA
+# summation of 1..5 and NA is just NA.
+
+# sum(1:5, NA, na.rm = TRUE) = 15
+# NA and na.rm = T negates each other, leaving just summation of 1..5
+
+```
+
+## Question 3
+
+a) Create an empty list `mylist`.
+
+```{r}
+mylist=list()
+```
+
+b) Add a component named `firstAttr` whose value is 42.
+
+```{r}
+mylist[["firstAttr"]] = 42
+```
+
+
+c) Add a component named `secondAttr` a 4x3 matrix whose elements are $(1,2,\ldots,12)$ in row-wise order.
+
+```{r}
+mylist[["secondAttr"]] = matrix(1:12,nrow=4,ncol=3,byrow=TRUE)
+```
+
+d) Add a component named `thirdAttr` a 4x3x2 array whose elements are $(1,2,\ldots,24)$.
+
+```{r}
+mylist[["thirdAttr"]] = array(1:24,dim=c(4,3,2))
+```
+
+## Question 4
+`iris` data set gives the measurements in centimeters of the variables sepal length, sepal width, petal length and petal width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.
+
+Install the 'iris' data set on your computer using the command `install.packages("datasets")`. Then load the `datasets` package into your session using the following command.
+```{r}
+library(datasets)
+```
+
+a) Display the first 6 rows of the `iris` data set
+
+```{r}
+head(iris,6)
+```
+
+b) Compute the average of the first four variables (Sepal.Length, Sepal.Width, Petal.Length and Petal.Width) using `sapply()` function.
+
+Hint: You might need to consider removing the `NA` values, otherwise the average will not be computed.
+```{r}
+sapply(iris[,1:4],mean)
+```
+
+
+c) Construct a boxplot for `Sepal.Width` variable, then display all the outliers.
+```{r}
+boxplot(iris$Sepal.Width)
+```
+
+d) Compute the lower and the upper quartiles of `Sepal.Width` variable
+```{r}
+quantile(iris$Sepal.Width)[2]
+quantile(iris$Sepal.Width)[4]
+```
+
+##Question 5
+
+Install the 'mtcars' data set on your computer using the command `install.packages("datasets")`. Then load the `datasets` package into your session using the following command.
+```{r}
+library(datasets)
+```
+
+a) Attache `mtcars` dataset into your session, then assign the dataset to a new variable called `newmtcarsData`. 
+
+Hint: You can use 'attach()' function to call the dataset in the current R session. 
+```{r}
+attach(mtcars)
+newmtcarsData <- mtcars
+detach()
+```
+
+b) Display the structure of `newmtcarsData` using `str()` function, then change the data type of the `am` variable from `numeric` to `factor` with the following labels: `manual` for `1` and `automatic` for `0`.
+ 
+```{r}
+str(newmtcarsData)
+newmtcarsData$am = factor(newmtcarsData$am,levels = c(1,0),labels = c('manual','automatic'))
+```
+
+c) Obtain the dimension of the `newmtcarsData` using `dim()` function, then write a command to display only the number of columns of `newmtcarsData` variable.
+
+```{r}
+dim(newmtcarsData)
+dim(newmtcarsData)[2]
+```
+
+
+d) Get the five point summary for "new.data" using `summary()` function, then write a command to dispaly only the maximum value of each attribute. 
+
+```{r}
+summary(newmtcarsData)
+summary(newmtcarsData)[6,]
+```
+
+END of Assignment #1.
